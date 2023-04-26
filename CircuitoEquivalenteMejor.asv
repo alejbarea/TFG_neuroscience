@@ -1,0 +1,51 @@
+%% PARAMETERS
+C_M = 1;
+E_Na = 55;
+E_K = -77;
+E_L = -54.5;
+g_Na = 120;
+g_K = 36;
+g_L = 0.3;
+g = [g_Na,g_K,g_L];
+E = [E_Na, E_K, E_L];
+%% DERIVED PARAMETERS
+g_tot = sum(g);
+tau_M = C_M/g_tot;
+E_tot = g*E';
+%% CUSTOM PARAMETERS
+I_0 = 10;
+E_tot = 0;
+V_0 = 0;
+t0 = 0;
+tf = 40*1e-3;
+N_points = 1e3;
+%% ODE
+
+I = @(t) I_0*(t<=20*1e-3);
+I = @(t) I_0*sin(2*t);
+I_green = @(t) I(t).*exp(t/tau_M);
+V = @(t) V_0.*exp((t0 - t)./tau_M) + tau_M.*E_tot.*(1 - exp((t0 - t)./tau_M)) + exp(-t./tau_M).*integral(I_green,t0,t);
+
+%% GRAPH PARAMETERS
+line_width = 2;
+font_size = 20;
+
+%% PLOTTING SOLUTIONS
+
+t = linspace(t0,tf,N_points);
+figure(1)
+hold on
+y = ones(1,N_points);
+for j = 1:4
+    for i = 1:N_points
+            y(i) = V(t(i));
+            
+    end
+    plot(t,y,'LineWidth','')
+end
+
+
+
+
+
+
