@@ -1,0 +1,20 @@
+a = 1;
+b = 1;
+I_1 = 2;
+V_1 = 0;
+N = 1e5;
+V_th = 1e2;
+V0 = -V_th;
+I0 = 2.5;
+tspan = [0 10];
+I = @(t) I0;
+f = @(t,V) a.*(I(t) - I_1) + b.*(V - V_1).^2;
+line_width = 2;
+font_size = 20;
+[t1, V1] = generic_euler_1D(tspan,V0,N,f,V_th,- V_th);
+plot(t1,V1,'LineWidth',line_width)
+hold on
+xlabel('t (ms)','FontSize',font_size)
+ylabel('V (mV)','FontSize',font_size)
+plot(tspan, [V_th V_th],'r--')
+grid on

@@ -1,0 +1,44 @@
+N = 2^11;
+
+
+delta_Vth = 5;
+tau_Vth = 10;
+V0 = -70;
+V_RES = -65;
+R_M = 10;
+tau_M = 5;
+C_M = 0.5;
+I0 = 2;
+Vth0 = -50;
+tstart = 0;
+duration = 40;
+tspan = [0 40];
+Delta = 10;
+
+I = @(t) I0.*(t>=tstart).*(t<=tstart+duration);
+noise = I0*abs(wnoise(3,17)) + 0.8;
+I_noise = @(t) I_stochastic(t,noise,tspan,N);
+normalnoise = normrnd(2,I0,1,N);
+I_normalnoise = @(t) I_stochastic(t,normalnoise,tspan,N);
+I_sinusoidal = @(t) (I0*sin(t) + 4)*(t>=tstart)*(t<=tstart+duration);
+
+f_EIF = @(t,V) (- (V - V0) + Delta*exp((V - Vth0)/Delta) + R_M*I(t))/tau_M;
+f_QIF = @(t,V) (Delta + V0 - Vth0 + (1/(2*Delta))*(V - Vth0)^2 + R_M*I(t))/tau_M;
+[t1, V1] = generic_euler_1D(tspan,V0,N,f_EIF,Vth0,V_RES);
+[t2, V2] = generic_euler_1D(tspan,V0,N,f_QIF,Vth0,V_RES);
+
+
+figure(1)
+hold on
+plot(t1,V1)
+plot(t,Vth,'r--','LineWidth',line_width)
+xlabel('t (ms)','FontSize',font_size)
+ylabel('V (mV)','FontSize',font_size)
+hold off
+figure(2)
+hold on
+plot(t2,V2)
+plot(t,Vth,'r--','LineWidth',line_width)
+xlabel('t (ms)','FontSize',font_size)
+ylabel('V (mV)','FontSize',font_size)
+hold off
